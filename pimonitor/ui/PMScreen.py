@@ -12,6 +12,7 @@ import pygame
 
 from pimonitor.PM import PM
 from pimonitor.PMUtils import PMUtils
+from pygame.locals import *
 
 
 class PMScreen(object):
@@ -55,7 +56,7 @@ class PMScreen(object):
 
         self._log_lines = 4
         self._log_msg_id = 0
-        self._log_surface = pygame.Surface((self._width / 2, self._font_size * self._log_lines), 0, self._color_depth)
+        self._log_surface = pygame.Surface((self._width / 4, self._font_size * self._log_lines), 0, self._color_depth)
         self._log_surface.set_alpha(self._subwindow_alpha)
         self._log_queue = []
 
@@ -99,6 +100,10 @@ class PMScreen(object):
                 self.close()
                 sys.exit()
 
+            elif event.type is KEYDOWN and event.key == K_q:
+                sys.exit()
+                pygame.quit()
+
             elif event.type == pygame.MOUSEBUTTONUP:
                 self._mouse_down_mark_timeout = 0
                 self._mouse_down_pos = pygame.mouse.get_pos()
@@ -107,9 +112,9 @@ class PMScreen(object):
                     self.prev_window()
                 else:
                     self.next_window()
-            elif event.type == pygame.K_LEFT:
+            elif event.type is KEYDOWN and event.key == pygame.K_LEFT:
                 self.prev_window()
-            elif event.type == pygame.K_RIGHT:
+            elif event.type is KEYDOWN and event.key == pygame.K_RIGHT:
                 self.next_window()
             elif event.type == PMScreen.ONE_SEC_EVENT:
                 self._mouse_down_mark_timeout += 1
@@ -122,7 +127,7 @@ class PMScreen(object):
         if self._window is not None:
             self._window.render()
 
-        self.render_log()
+        #self.render_log()
 
         if self._mouse_down_mark_timeout < 2:
             pygame.draw.circle(self._surface, self._dim_color, self._mouse_down_pos, 16)
@@ -213,7 +218,8 @@ class PMScreen(object):
 
     def log_window(self, index):
         if self._window is not None:
-            PM.log(str(index + 1) + '/' + str(len(self._windows)) + ': ' + self._window.get_parameters()[0].get_id(), 0)
+		if self._window.get_parameters() is not None:
+			PM.log(str(index + 1) + '/' + str(len(self._windows)) + ': ' + self._window.get_parameters()[0].get_id(), 0)
 
     def log(self, message, mid):
         ticks = pygame.time.get_ticks()
